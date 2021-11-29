@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import com.example.agregat.log as log
 
 class logowanie : AppCompatActivity() {
 
@@ -19,6 +20,7 @@ class logowanie : AppCompatActivity() {
 
             val usernameT = username.text;
             val passwordT = password.text;
+
             Toast.makeText(this@logowanie, usernameT, Toast.LENGTH_LONG).show()
         }
     }
