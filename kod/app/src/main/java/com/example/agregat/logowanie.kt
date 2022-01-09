@@ -12,16 +12,19 @@ class logowanie : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_logowanie)
 
-        var username = findViewById(R.id.username) as EditText
-        var password = findViewById(R.id.password) as EditText
-        var LoginBtn = findViewById(R.id.BtnLogowanie) as Button
+        var username = findViewById<EditText>(R.id.username)
+        var password = findViewById<EditText>(R.id.password)
+        var loginBtn = findViewById<Button>(R.id.BtnLogowanie)
 
-        LoginBtn.setOnClickListener {
+        loginBtn.setOnClickListener {
 
-            val usernameT = username.text;
-            val passwordT = password.text;
+            val usernameT = username.text
+            val passwordT = password.text
 
-            Toast.makeText(this@logowanie, usernameT, Toast.LENGTH_LONG).show()
+
+            //Toast.makeText(this@logowanie, usernameT, Toast.LENGTH_LONG).show()
+       val bg = log(this);
+            bg.execute(usernameT.toString(), passwordT.toString())
         }
     }
 }
