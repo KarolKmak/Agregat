@@ -3,6 +3,7 @@ package com.example.agregat
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.GsonBuilder
@@ -43,7 +44,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             override fun onFailure(call: Call, e: IOException) {
-                println("Failed to execute request")
+                runOnUiThread {
+                    Toast.makeText(applicationContext, "Nie wiem jak żesz to zrobił, ale nie powinno cię tu być" + e.message, Toast.LENGTH_LONG).show()
+                }
             }
         })
     }
