@@ -1,28 +1,26 @@
 package com.example.agregat
 
 import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat.startActivity
 
 
-class MainAdapter(val homeFeed: Array<HomeFeed>): RecyclerView.Adapter<CustomViewHolder>() {
+class MainAdapter(val homeFeed: Array<HomeFeed>): RecyclerView.Adapter<SavedViewHolder>() {
 
     override fun getItemCount(): Int{
         return homeFeed.count()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SavedViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val cellForRow = layoutInflater.inflate(R.layout.article_row, parent, false)
-        return CustomViewHolder(cellForRow)
+        return SavedViewHolder(cellForRow)
     }
 
-    override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SavedViewHolder, position: Int) {
         val article = homeFeed.get(position)
         holder.itemView.findViewById<TextView>(R.id.textView_article_title).text = article.Title
         holder.itemView.findViewById<TextView>(R.id.textView_article_description).text = article.article_description

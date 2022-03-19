@@ -11,33 +11,36 @@ import com.google.gson.GsonBuilder
 import okhttp3.*
 import java.io.IOException
 
-class MainActivity : AppCompatActivity() {
+class Agregat : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.agregat)
 
         var recyclerView_main: RecyclerView = findViewById(R.id.recyclerView_main)
         recyclerView_main.layoutManager = LinearLayoutManager(this)
+        //recyclerView_main.adapter = MainAdapter()
 
         fetchJson()
-        zmien()
-    }
 
+        zmien()
+        val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
+        navigationView.getMenu().getItem(1).setChecked(true);
+    }
     fun zmien()
     {
         val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
         navigationView.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.home -> {
-                    val i = Intent(this@MainActivity, MainActivity::class.java)
+                    val i = Intent(this@Agregat, MainActivity::class.java)
                     startActivity(i)
                 }
                 R.id.agregat -> {
-                    val i = Intent(this@MainActivity, Agregat::class.java)
+                    val i = Intent(this@Agregat, Agregat::class.java)
                     startActivity(i)
                 }
                 R.id.zapisane -> {
-                    val i = Intent(this@MainActivity, Saved::class.java)
+                    val i = Intent(this@Agregat, Saved::class.java)
                     startActivity(i)
                 }
             }
@@ -45,6 +48,7 @@ class MainActivity : AppCompatActivity() {
             true
         }
     }
+
 
 
 
