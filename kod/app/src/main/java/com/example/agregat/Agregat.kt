@@ -1,5 +1,6 @@
 package com.example.agregat
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -16,9 +17,8 @@ class Agregat : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.agregat)
 
-        var recyclerView_main: RecyclerView = findViewById(R.id.recyclerView_main)
-        recyclerView_main.layoutManager = LinearLayoutManager(this)
-        //recyclerView_main.adapter = MainAdapter()
+        var recyclerView_agregat: RecyclerView = findViewById(R.id.recyclerView_agregat)
+        recyclerView_agregat.layoutManager = LinearLayoutManager(this)
 
         fetchJson()
 
@@ -49,12 +49,9 @@ class Agregat : AppCompatActivity() {
         }
     }
 
-
-
-
     fun fetchJson()
     {
-        val url = "http://192.168.1.10/app/index.php"
+        val url = "http://192.168.1.10/app/agregat.php"
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
         client.newCall(request).enqueue(object: Callback{
@@ -63,15 +60,16 @@ class Agregat : AppCompatActivity() {
                 println(body)
 
                 val gson = GsonBuilder().create()
-                val homeFeed = gson.fromJson(body, Array<HomeFeed>::class.java)
-                var recyclerView_main: RecyclerView = findViewById(R.id.recyclerView_main)
+                val agregatFeed = gson.fromJson(body, Array<AgregatFeed>::class.java)
+                var recyclerView_agregat: RecyclerView = findViewById(R.id.recyclerView_agregat)
+                val context: Context = this@Agregat
                 runOnUiThread {
-                    recyclerView_main.adapter = MainAdapter(homeFeed)
+                    recyclerView_agregat.adapter = AgregatAdapter(agregatFeed, context)
                 }
             }
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(applicationContext, "Nie wiem jak żesz to zrobił, ale nie powinno cię tu być" + e.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(applicationContext,e.message, Toast.LENGTH_LONG).show()
                 }
             }
         })

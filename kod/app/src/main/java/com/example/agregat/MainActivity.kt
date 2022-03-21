@@ -1,5 +1,6 @@
 package com.example.agregat
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -22,6 +23,8 @@ class MainActivity : AppCompatActivity() {
         fetchJson()
         zmien()
     }
+
+
 
     fun zmien()
     {
