@@ -1,6 +1,5 @@
 package com.example.agregat
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -17,16 +16,16 @@ class Agregat : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.agregat)
 
-        var recyclerView_agregat: RecyclerView = findViewById(R.id.recyclerView_agregat)
-        recyclerView_agregat.layoutManager = LinearLayoutManager(this)
+        val recyclerViewAgregat: RecyclerView = findViewById(R.id.recyclerView_agregat)
+        recyclerViewAgregat.layoutManager = LinearLayoutManager(this)
 
         fetchJson()
 
         zmien()
         val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
-        navigationView.getMenu().getItem(1).setChecked(true);
+        navigationView.menu.getItem(1).isChecked = true
     }
-    fun zmien()
+    private fun zmien()
     {
         val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
         navigationView.setOnItemSelectedListener {
@@ -49,7 +48,7 @@ class Agregat : AppCompatActivity() {
         }
     }
 
-    fun fetchJson()
+    private fun fetchJson()
     {
         val url = "http://192.168.1.10/app/agregat.php"
         val request = Request.Builder().url(url).build()
@@ -57,22 +56,21 @@ class Agregat : AppCompatActivity() {
         client.newCall(request).enqueue(object: Callback{
             override fun onResponse(call: Call?, response: Response?) {
                 val body = response?.body()?.string()
-                println(body)
-
                 val gson = GsonBuilder().create()
                 val agregatFeed = gson.fromJson(body, Array<AgregatFeed>::class.java)
-                var recyclerView_agregat: RecyclerView = findViewById(R.id.recyclerView_agregat)
-                val context: Context = this@Agregat
+                val recyclerViewAgregat: RecyclerView = findViewById(R.id.recyclerView_agregat)
                 runOnUiThread {
-                    recyclerView_agregat.adapter = AgregatAdapter(agregatFeed, context)
+                    recyclerViewAgregat.adapter = AgregatAdapter(agregatFeed, this@Agregat)
                 }
             }
+
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(applicationContext,e.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(applicationContext, e.message, Toast.LENGTH_LONG).show()
                 }
             }
         })
     }
+
 
 }

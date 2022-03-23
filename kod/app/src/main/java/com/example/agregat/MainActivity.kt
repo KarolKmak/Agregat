@@ -1,6 +1,5 @@
 package com.example.agregat
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -17,8 +16,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var recyclerView_main: RecyclerView = findViewById(R.id.recyclerView_main)
-        recyclerView_main.layoutManager = LinearLayoutManager(this)
+        val recyclerViewMain: RecyclerView = findViewById(R.id.recyclerView_main)
+        recyclerViewMain.layoutManager = LinearLayoutManager(this)
 
         fetchJson()
         zmien()
@@ -26,7 +25,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    fun zmien()
+    private fun zmien()
     {
         val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
         navigationView.setOnItemSelectedListener {
@@ -51,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    fun fetchJson()
+    private fun fetchJson()
     {
         val url = "http://192.168.1.10/app/index.php"
         val request = Request.Builder().url(url).build()
@@ -59,18 +58,18 @@ class MainActivity : AppCompatActivity() {
         client.newCall(request).enqueue(object: Callback{
             override fun onResponse(call: Call?, response: Response?) {
                 val body = response?.body()?.string()
-                println(body)
-
                 val gson = GsonBuilder().create()
                 val homeFeed = gson.fromJson(body, Array<HomeFeed>::class.java)
-                var recyclerView_main: RecyclerView = findViewById(R.id.recyclerView_main)
+                val recyclerViewMain: RecyclerView = findViewById(R.id.recyclerView_main)
                 runOnUiThread {
-                    recyclerView_main.adapter = MainAdapter(homeFeed)
+                    recyclerViewMain.adapter = MainAdapter(homeFeed, this@MainActivity)
                 }
             }
+
+
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(applicationContext, "Nie wiem jak żesz to zrobił, ale nie powinno cię tu być" + e.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(applicationContext, e.message, Toast.LENGTH_LONG).show()
                 }
             }
         })

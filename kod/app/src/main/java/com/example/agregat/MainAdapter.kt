@@ -1,43 +1,143 @@
 package com.example.agregat
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.view.LayoutInflater
-import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.TextView
+import android.widget.Toast
+import androidx.recyclerview.widget.RecyclerView
 
 
-class MainAdapter(val homeFeed: Array<HomeFeed>): RecyclerView.Adapter<SavedViewHolder>() {
+class MainAdapter(private val homeFeed: Array<HomeFeed>, private val context: Context): RecyclerView.Adapter<CustomViewHolder>() {
 
     override fun getItemCount(): Int{
         return homeFeed.count()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SavedViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val cellForRow = layoutInflater.inflate(R.layout.article_row, parent, false)
-        return SavedViewHolder(cellForRow)
+        return CustomViewHolder(cellForRow, null, context)
     }
 
-    override fun onBindViewHolder(holder: SavedViewHolder, position: Int) {
-        val article = homeFeed.get(position)
+    override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
+        val article = homeFeed[position]
         holder.itemView.findViewById<TextView>(R.id.textView_article_title).text = article.Title
         holder.itemView.findViewById<TextView>(R.id.textView_article_description).text = article.article_description
-        holder?.url = article.Adress
-    }
-}
+        holder.url = article.Adress
 
-class CustomViewHolder(val view: View, var url:String? = null): RecyclerView.ViewHolder(view) {
-    companion object{
-        val link = "article_link"
-    }
+        //Zaznaczenie artykułów zapisanych na później
+        val pref: SharedPreferences = context.getSharedPreferences("articles", Context.MODE_PRIVATE)
+            if (pref.getString("title_${article.Title}", null) == article.Title) {
+                holder.itemView.findViewById<CheckBox>(R.id.checkBox).isChecked = true
+            }
 
-    init {
-        view.setOnClickListener {
-            val intent = Intent(view.context, ArticlePage::class.java)
-            intent.putExtra(link,url)
-            view.context.startActivity(intent)
+
+        //Obsługa przycisku zapisywania artykułu na później
+        holder.itemView.findViewById<CheckBox>(R.id.checkBox).setOnClickListener{
+            if (holder.itemView.findViewById<CheckBox>(R.id.checkBox).isChecked) {
+                holder.save(
+                    article.Title,
+                    holder.itemView.findViewById<CheckBox>(R.id.checkBox).isChecked,
+                    article.article_description,
+                    article.Adress
+                )
+            }
+            else{
+                holder.save(article.Title, holder.itemView.findViewById<CheckBox>(R.id.checkBox).isChecked)
+            }
         }
     }
 }
+
+class CustomViewHolder(private val view: View, var url:String? = null, private val context: Context): RecyclerView.ViewHolder(view) {
+    companion object {
+        const val link = "article_link"
+    }
+
+    init {
+        //otworzenie artykułu
+        view.setOnClickListener {
+            val intent = Intent(view.context, ArticlePage::class.java)
+            intent.putExtra(link, url)
+            view.context.startActivity(intent)
+        }
+    }
+
+    fun save(title: String, switch: Boolean?, desc: String? = "", url: String? = "") {
+        val pref: SharedPreferences = context.getSharedPreferences("articles", Context.MODE_PRIVATE)
+        val editor = pref.edit()
+        if (switch != null && switch == true) {
+            //Zapisanie artykułu na później
+            editor.apply {
+                putString("title_$title", title)
+            }.apply()
+            table(true, title, pref.all.size, desc, url)
+            Toast.makeText(context, "Zapisano $title", Toast.LENGTH_SHORT).show()
+        }
+        else {
+
+            val table: SharedPreferences = context.getSharedPreferences("articles_table", Context.MODE_PRIVATE)
+            var i = 1
+            while (table.getString("title_$i", "") != title){
+                i++
+            }
+            table(false, title, i)
+            //Usunięcie artykułu z zakładki na później
+            editor.remove("title_$title").apply()
+            Toast.makeText(context, "Usunięto $title", Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun table(boolean: Boolean, title: String, rozmiar: Int, desc: String? = "error-MainAdapter", url: String? = "error-MainAdapter"){
+        val table: SharedPreferences = context.getSharedPreferences("articles_table", Context.MODE_PRIVATE)
+        val editor = table.edit()
+        if (boolean){
+            //dodanie obiektu do tabeli
+            println("pozycja: $rozmiar")
+            editor.apply {
+                putString("title_$rozmiar", title)
+                putString("desc_$rozmiar", desc)
+                putString("url_$rozmiar", url)
+                putInt("table_size", rozmiar)
+            }.apply()
+            println("rozmiar tabeli: "+table.all.size)
+        }
+        else
+        {
+            if(rozmiar == table.getInt("table_size", 0)) {
+                println("usunięto element numer: $rozmiar")
+                editor.remove("title_$rozmiar").apply()
+                editor.remove("desc_$rozmiar").apply()
+                editor.remove("url_$rozmiar").apply()
+                editor.apply {
+                    putInt("table_size", table.getInt("table_size", 0) - 1)
+                }.apply()
+            }
+            else
+            {
+                val ostatni = table.getInt("table_size", 0)
+                val tekst = table.getString("title_$ostatni", "błąd")
+                val desc = table.getString("desc_$ostatni", "błąd")
+                val url = table.getString("url_$ostatni", "błąd")
+                println("Usunięto w środku: "+ostatni)
+                editor.apply {
+                    putString("title_$rozmiar", tekst)
+                    putString("desc_$rozmiar", desc)
+                    putString("url_$rozmiar", url)
+                    putInt("table_size", ostatni-1)
+                }.apply()
+                editor.remove("title_$"+ostatni).apply()
+                editor.remove("desc_$"+ostatni).apply()
+                editor.remove("url_$"+ostatni).apply()
+                println("rozmiar tabeli po usunięciu: "+table.getInt("table_size", 0))
+            }
+        }
+    }
+
+
+}
+

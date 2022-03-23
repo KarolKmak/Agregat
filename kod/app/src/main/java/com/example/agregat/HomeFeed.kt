@@ -4,3 +4,4 @@ class HomeFeed(val Adress: String, val Title: String, val article_description: S
 }
 class AgregatFeed(val Name: String,val Description: String){
 }
+

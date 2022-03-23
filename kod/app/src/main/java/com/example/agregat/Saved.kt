@@ -3,20 +3,27 @@ package com.example.agregat
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class Saved : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_saved)
 
+        val recyclerViewSaved: RecyclerView = findViewById(R.id.recyclerView_saved)
+        recyclerViewSaved.layoutManager = LinearLayoutManager(this)
+        recyclerViewSaved.adapter = SavedAdapter(this@Saved)
+
         zmien()
         val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
-        navigationView.getMenu().getItem(2).setChecked(true);
+        navigationView.menu.getItem(2).isChecked = true
     }
 
 
-    fun zmien() {
+    private fun zmien() {
         val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
         navigationView.setOnItemSelectedListener {
             when (it.itemId) {

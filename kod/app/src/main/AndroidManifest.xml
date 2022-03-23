@@ -15,8 +15,7 @@
         android:usesCleartextTraffic="true">
         <!--Saved-->
         <activity
-            android:name=".Saved"
-            android:launchMode="singleTop" />
+            android:name=".Saved" />
         <!--MainActivity-->
         <activity
             android:name=".MainActivity"
