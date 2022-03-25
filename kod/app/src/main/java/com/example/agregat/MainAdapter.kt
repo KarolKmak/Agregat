@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +29,8 @@ class MainAdapter(private val homeFeed: Array<HomeFeed>, private val context: Co
         val article = homeFeed[position]
         holder.itemView.findViewById<TextView>(R.id.textView_article_title).text = article.Title
         holder.itemView.findViewById<TextView>(R.id.textView_article_description).text = article.article_description
+        holder.itemView.findViewById<RatingBar>(R.id.ratingBar).rating = article.Importance.toFloat()
+        holder.itemView.findViewById<RatingBar>(R.id.ratingBar).isEnabled = false
         holder.url = article.Adress
 
         //Zaznaczenie artykułów zapisanych na później
@@ -44,7 +47,8 @@ class MainAdapter(private val homeFeed: Array<HomeFeed>, private val context: Co
                     article.Title,
                     holder.itemView.findViewById<CheckBox>(R.id.checkBox).isChecked,
                     article.article_description,
-                    article.Adress
+                    article.Adress,
+                    article.Importance
                 )
             }
             else{
@@ -68,7 +72,7 @@ class CustomViewHolder(private val view: View, var url:String? = null, private v
         }
     }
 
-    fun save(title: String, switch: Boolean?, desc: String? = "", url: String? = "") {
+    fun save(title: String, switch: Boolean?, desc: String? = "", url: String? = "", imp: Int = 0) {
         val pref: SharedPreferences = context.getSharedPreferences("articles", Context.MODE_PRIVATE)
         val editor = pref.edit()
         if (switch != null && switch == true) {
@@ -76,7 +80,7 @@ class CustomViewHolder(private val view: View, var url:String? = null, private v
             editor.apply {
                 putString("title_$title", title)
             }.apply()
-            table(true, title, pref.all.size, desc, url)
+            table(true, title, pref.all.size, desc, url, imp)
             Toast.makeText(context, "Zapisano $title", Toast.LENGTH_SHORT).show()
         }
         else {
@@ -92,7 +96,7 @@ class CustomViewHolder(private val view: View, var url:String? = null, private v
             Toast.makeText(context, "Usunięto $title", Toast.LENGTH_SHORT).show()
         }
     }
-    private fun table(boolean: Boolean, title: String, rozmiar: Int, desc: String? = "error-MainAdapter", url: String? = "error-MainAdapter"){
+    private fun table(boolean: Boolean, title: String, rozmiar: Int, desc: String? = "error-MainAdapter", url: String? = "error-MainAdapter", imp: Int = 0){
         val table: SharedPreferences = context.getSharedPreferences("articles_table", Context.MODE_PRIVATE)
         val editor = table.edit()
         if (boolean){
@@ -102,6 +106,7 @@ class CustomViewHolder(private val view: View, var url:String? = null, private v
                 putString("title_$rozmiar", title)
                 putString("desc_$rozmiar", desc)
                 putString("url_$rozmiar", url)
+                putInt("imp_$rozmiar", imp)
                 putInt("table_size", rozmiar)
             }.apply()
             println("rozmiar tabeli: "+table.all.size)
@@ -113,6 +118,7 @@ class CustomViewHolder(private val view: View, var url:String? = null, private v
                 editor.remove("title_$rozmiar").apply()
                 editor.remove("desc_$rozmiar").apply()
                 editor.remove("url_$rozmiar").apply()
+                editor.remove("imp_$rozmiar").apply()
                 editor.apply {
                     putInt("table_size", table.getInt("table_size", 0) - 1)
                 }.apply()
@@ -121,18 +127,21 @@ class CustomViewHolder(private val view: View, var url:String? = null, private v
             {
                 val ostatni = table.getInt("table_size", 0)
                 val tekst = table.getString("title_$ostatni", "błąd")
-                val desc = table.getString("desc_$ostatni", "błąd")
-                val url = table.getString("url_$ostatni", "błąd")
-                println("Usunięto w środku: "+ostatni)
+                val opis = table.getString("desc_$ostatni", "błąd")
+                val adres = table.getString("url_$ostatni", "błąd")
+                val import = table.getInt("imp_$ostatni", 0)
+                println("Usunięto w środku: $ostatni")
                 editor.apply {
                     putString("title_$rozmiar", tekst)
-                    putString("desc_$rozmiar", desc)
-                    putString("url_$rozmiar", url)
+                    putString("desc_$rozmiar", opis)
+                    putString("url_$rozmiar", adres)
+                    putInt("imp_$rozmiar", import)
                     putInt("table_size", ostatni-1)
                 }.apply()
-                editor.remove("title_$"+ostatni).apply()
-                editor.remove("desc_$"+ostatni).apply()
-                editor.remove("url_$"+ostatni).apply()
+                editor.remove("title_$ostatni").apply()
+                editor.remove("desc_$ostatni").apply()
+                editor.remove("url_$ostatni").apply()
+                editor.remove("imp_$ostatni").apply()
                 println("rozmiar tabeli po usunięciu: "+table.getInt("table_size", 0))
             }
         }

@@ -1,6 +1,7 @@
 package com.example.agregat
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -52,8 +53,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchJson()
     {
+        val table: SharedPreferences = this.getSharedPreferences("agregat_table", MODE_PRIVATE)
+        var agregaty = ""
+        var i = table.getInt("table_size", 0)
+        while (i > 0){
+            agregaty += "`agregat_name` LIKE \""+(table.getString("agregat_$i", "").toString())+"\""
+            i--
+            if (i > 0){agregaty+= " OR "}
+        }
+        println("Warunek: "+agregaty)
+
+        val formBody:RequestBody = FormBody.Builder()
+            .add("agregat", agregaty).build()
         val url = "http://192.168.1.10/app/index.php"
-        val request = Request.Builder().url(url).build()
+        val request = Request.Builder().url(url).post(formBody).build()
         val client = OkHttpClient()
         client.newCall(request).enqueue(object: Callback{
             override fun onResponse(call: Call?, response: Response?) {

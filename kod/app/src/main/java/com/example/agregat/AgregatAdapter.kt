@@ -30,7 +30,7 @@ class AgregatAdapter(private val agregatFeed: Array<AgregatFeed>, private val co
         holder.itemView.findViewById<TextView>(R.id.textView_article_description).text = agregat.Description
 
         val pref: SharedPreferences = context.getSharedPreferences("agregat", MODE_PRIVATE)
-        holder.itemView.findViewById<SwitchCompat>(R.id.switchAgregat).isChecked = pref.getBoolean("Agregat_"+agregat.Name, false)
+        holder.itemView.findViewById<SwitchCompat>(R.id.switchAgregat).isChecked = pref.getBoolean("agregat_"+agregat.Name, false)
         holder.itemView.findViewById<SwitchCompat>(R.id.switchAgregat).setOnClickListener{
             holder.save(agregat.Name, holder.itemView.findViewById<SwitchCompat>(R.id.switchAgregat).isChecked)
         }
@@ -41,18 +41,61 @@ class AgregatAdapter(private val agregatFeed: Array<AgregatFeed>, private val co
 
 class AgregatViewHolder(view: View, private val context: Context): RecyclerView.ViewHolder(view) {
 
-    fun save(text: String, switch: Boolean?){
+    fun save(text: String, switch: Boolean?, imp: Int = 0){
         val pref: SharedPreferences = context.getSharedPreferences("agregat", MODE_PRIVATE)
         val editor = pref.edit()
         if(switch != null && switch ==true) {
             editor.apply {
-                putBoolean("Agregat_$text", switch)
+                putBoolean("agregat_$text", switch)
             }.apply()
+            table(true, text, pref.all.size, imp)
             Toast.makeText(context, "Zapisano$text$switch", Toast.LENGTH_SHORT).show()
         }
         else{
-            editor.remove("Agregat_$text").apply()
+            val table: SharedPreferences = context.getSharedPreferences("agregat_table", MODE_PRIVATE)
+            var i = 1
+            while (table.getString("agregat_$i", "") != text){
+                i++
+            }
+            editor.remove("agregat_$text").apply()
+            table(false, text, i)
             Toast.makeText(context, "Usunięto", Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun table(boolean: Boolean, name: String, rozmiar: Int, imp: Int = 0){
+        val table: SharedPreferences = context.getSharedPreferences("agregat_table", MODE_PRIVATE)
+        val editor = table.edit()
+        if (boolean){
+            //dodanie obiektu do tabeli
+            println("pozycja: $rozmiar")
+            editor.apply {
+                putString("agregat_$rozmiar", name)
+                putInt("agregat_$rozmiar", imp)
+                putInt("table_size", rozmiar)
+            }.apply()
+            println("rozmiar tabeli: "+table.all.size)
+        }
+        else
+        {
+            if(rozmiar == table.getInt("table_size", 1)) {
+                println("usunięto element numer: $rozmiar")
+                editor.remove("agregat_$rozmiar").apply()
+                editor.apply {
+                    putInt("table_size", table.getInt("table_size", 0) - 1)
+                }.apply()
+            }
+            else
+            {
+                val ostatni = table.getInt("table_size", 0)
+                val tekst = table.getString("agregat_$ostatni", "błąd")
+                println("Usunięto w środku: $ostatni")
+                editor.apply {
+                    putString("agregat_$rozmiar", tekst)
+                    putInt("table_size", ostatni-1)
+                }.apply()
+                editor.remove("agregat_$ostatni").apply()
+                println("rozmiar tabeli po usunięciu: "+table.getInt("table_size", 0))
+            }
         }
     }
 }
