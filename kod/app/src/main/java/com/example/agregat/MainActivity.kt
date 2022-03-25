@@ -57,7 +57,8 @@ class MainActivity : AppCompatActivity() {
         var agregaty = ""
         var i = table.getInt("table_size", 0)
         while (i > 0){
-            agregaty += "`agregat_name` LIKE \""+(table.getString("agregat_$i", "").toString())+"\""
+            agregaty += "(`agregat_name` LIKE \""+(table.getString("agregat_$i", "").toString())+"\" AND `Importance` >= "+table.getInt("importance_$i", 0)+")"
+            println("Ważność: "+table.getInt("importance_$i", 0))
             i--
             if (i > 0){agregaty+= " OR "}
         }
