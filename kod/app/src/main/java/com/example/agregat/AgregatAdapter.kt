@@ -50,7 +50,7 @@ class AgregatViewHolder(view: View, private val context: Context): RecyclerView.
                 putBoolean("agregat_$text", switch)
                 putInt("importance_$text", imp)
             }.apply()
-            table(true, text, pref.all.size, imp)
+            table(true, text, pref.all.size/2, imp)
             Toast.makeText(context, "Zapisano$text$switch", Toast.LENGTH_SHORT).show()
         }
         else{
@@ -60,7 +60,7 @@ class AgregatViewHolder(view: View, private val context: Context): RecyclerView.
                 i++
             }
             editor.remove("agregat_$text").apply()
-            editor.remove("importacne_$text").apply()
+            editor.remove("importance_$text").apply()
             table(false, text, i, 0)
             Toast.makeText(context, "Usunięto", Toast.LENGTH_SHORT).show()
         }
@@ -91,7 +91,7 @@ class AgregatViewHolder(view: View, private val context: Context): RecyclerView.
             else
             {
                 val ostatni = table.getInt("table_size", 0)
-                val tekst = table.getString("agregat_$ostatni", "błąd")
+                val tekst = table.getString("agregat_$ostatni", "")
                 val impor = table.getInt("importance_$ostatni", 0)
                 println("Usunięto w środku: $ostatni")
                 editor.apply {
